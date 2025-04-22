@@ -1,6 +1,5 @@
 <template>
     <div>
-      <Header />
       <h1>About Stratagem</h1>
       <h2>Version 8.0 &copy; 2004</h2>
       <form name="AboutGameFrm" id="AboutGameFrm">
@@ -166,7 +165,6 @@
           </div>
         </div>
       </form>
-      <Footer />
     </div>
   </template>
   
@@ -180,8 +178,7 @@
   const router = useRouter();
   
   const proceed = () => {
-    // Hier müsstest du die Navigation zur "Create Teams" Seite implementieren
-    router.push('/create-teams'); // Angenommen, deine Route dafür ist /create-teams
+    router.push('/createTeams'); 
   };
   </script>
   

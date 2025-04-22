@@ -1,6 +1,5 @@
 <template>
   <div>
-    <Header />
     <h1>Create Teams</h1>
     <form @submit.prevent="startGame">
       <div>
@@ -32,18 +31,15 @@
 
       <Button type="submit">Start Game</Button>
     </form>
-    <Footer />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue';
-//import Header from './components/Header.vue'; 
-//import Footer from './components/Footer.vue'; 
+import { ref, watch } from 'vue';
 import TextInput from './components/TextInput.vue';
 import DropdownInput from './components/DropdownInput.vue';
 import Button from './components/Button.vue';
-import { useRouter } from 'vue-router'; // Angenommen, du nutzt Vue Router für die Navigation
+import { useRouter } from 'vue-router';
 
 const sessionName = ref('');
 const numTeams = ref(1);
@@ -75,9 +71,7 @@ const handleTeamCountChange = (newCount) => {
 const startGame = () => {
   console.log('Session Name:', sessionName.value);
   console.log('Teams:', teams.value);
-  // Hier würde die Logik zum Starten des Spiels implementiert
-  // z.B. Weiterleitung zu einer anderen Seite mit den Teamdaten
-  router.push('/game'); // Beispielhafte Weiterleitung
+  router.push('/game');
 };
 </script>
 
@@ -106,7 +100,6 @@ button {
   margin-top: 1em;
 }
 
-/* Responsives Layout (einfaches Beispiel) */
 @media (min-width: 768px) {
   label {
     display: inline-block;
