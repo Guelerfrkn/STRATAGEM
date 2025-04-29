@@ -8,6 +8,7 @@ const routes = [
   { path: '/createTeams', component: CreateTeams },
   { path: '/about', component: About },
   { path: '/impressum', component: Impressum }, 
+  { path: '/report', component: () => import('./components/Report.vue') },
 ];
 
 const router = createRouter({

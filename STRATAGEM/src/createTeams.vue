@@ -71,7 +71,7 @@ const handleTeamCountChange = (newCount) => {
 const startGame = () => {
   console.log('Session Name:', sessionName.value);
   console.log('Teams:', teams.value);
-  router.push('/game');
+  router.push('/report');
 };
 </script>
 

@@ -4,7 +4,6 @@
   
       <main>
         <h1>Stratagem Report</h1>
-  
         <div>
           <ReportCategory
             v-for="(category, index) in categories"
@@ -25,6 +24,7 @@
   //import Header from './Header.vue'
   //import Footer from './Footer.vue'
   import ReportCategory from './ReportCategory.vue'
+  //import ReportFilter from './ReportFilter.vue'
   
   const categories = ref([
     {
