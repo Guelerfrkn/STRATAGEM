@@ -1,7 +1,7 @@
 <template>
   <header class="header">
     <div class="logo">
-      <RouterLink to="/createTeams">
+      <RouterLink to="/">
         <img src="../assets/banner.gif" alt="STRATAGEM Logo" />
       </RouterLink>
     </div>
@@ -39,7 +39,7 @@ export default {
 }
 
 .logo img {
-  height: 40px;
+  height: 55px;
   margin-right: 10px;
   cursor: pointer; /* Optional: Add a pointer cursor for better UX */
 }
