@@ -75,14 +75,14 @@ import Button                 from './components/Button.vue'
 /* reactive state ---------------------------------------------------- */
 const router      = useRouter()
 const sessionName = ref('')
-const numTeams    = ref(2)
+const numTeams    = ref(1)
 const teams       = ref([
-  { name: '', abbreviation: '' },
   { name: '', abbreviation: '' }
 ])
 
 /* Optionen für Dropdown -------- */
 const teamOptions = [
+  { value: 1, label: '1' },
   { value: 2, label: '2' },
   { value: 3, label: '3' },
   { value: 4, label: '4' },
