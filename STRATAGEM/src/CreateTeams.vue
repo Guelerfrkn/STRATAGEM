@@ -2,6 +2,9 @@
   <div class="create-teams">
     <h1>Create Teams</h1>
 
+    <!-- Fehleranzeige -->
+    <p v-if="error" class="error-banner">{{ error }}</p>
+
     <form @submit.prevent="startGame" class="teams-form">
       <!-- Spielname -->
       <div class="form-group">
@@ -65,32 +68,20 @@
 </template>
 
 <script setup>
-/* imports ----------------------------------------------------------- */
-import { ref, watch }         from 'vue'
-import { useRouter }          from 'vue-router'
-import TextInput              from './components/TextInput.vue'
-import DropdownInput          from './components/DropdownInput.vue'
-import Button                 from './components/Button.vue'
+import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import TextInput      from './components/TextInput.vue'
+import DropdownInput  from './components/DropdownInput.vue'
+import Button         from './components/Button.vue'
 
-/* reactive state ---------------------------------------------------- */
 const router      = useRouter()
 const sessionName = ref('')
-const numTeams    = ref(2)
-const teams       = ref([
-  { name: '', abbreviation: '' },
-  { name: '', abbreviation: '' }
-])
+const numTeams    = ref(1)
+const teams       = ref([{ name: '', abbreviation: '' }])
+const error       = ref('')
 
-/* Optionen für Dropdown -------- */
-const teamOptions = [
-  { value: 2, label: '2' },
-  { value: 3, label: '3' },
-  { value: 4, label: '4' },
-  { value: 5, label: '5' },
-  { value: 6, label: '6' }
-]
+const teamOptions = [1, 2, 3, 4, 5, 6].map(v => ({ value: v, label: String(v) }))
 
-/* Anzahl-Änderung anpassen ------- */
 watch(numTeams, (newNum) => {
   while (teams.value.length < newNum) teams.value.push({ name: '', abbreviation: '' })
   while (teams.value.length > newNum) teams.value.pop()
@@ -98,15 +89,38 @@ watch(numTeams, (newNum) => {
 
 const handleTeamCountChange = (v) => (numTeams.value = parseInt(v, 10))
 
-/* Kürzel validieren -------------- */
 const validateAbbreviation = (e, idx) => {
-  teams.value[idx].abbreviation =
-    e.target.value.toUpperCase().replace(/[^A-Z]/g, '')
+  teams.value[idx].abbreviation = e.target.value.toUpperCase().replace(/[^A-Z]/g, '')
 }
 
-/* Start-Button ------------------------------------------------------ */
 const startGame = () => {
-  /* Start-Statistiken erzeugen */
+  error.value = ''
+
+  const names = new Set()
+  const abbrs = new Set()
+
+  for (const team of teams.value) {
+    const name = team.name.trim().toLowerCase()
+    const abbr = team.abbreviation.trim().toUpperCase()
+
+    if (!name || !abbr) {
+      error.value = 'Each team must have a name and abbreviation.'
+      return
+    }
+
+    if (names.has(name)) {
+      error.value = `Duplicate team name: "${team.name}"`
+      return
+    }
+    if (abbrs.has(abbr)) {
+      error.value = `Duplicate abbreviation: "${team.abbreviation}"`
+      return
+    }
+
+    names.add(name)
+    abbrs.add(abbr)
+  }
+
   const baseCategories = buildStartCategories(teams.value.length)
 
   const gameSession = {
@@ -121,7 +135,6 @@ const startGame = () => {
     lastPlayed: new Date().toISOString()
   }
 
-  /* speichern */
   const saved = JSON.parse(localStorage.getItem('savedGames') || '[]')
   saved.push(gameSession)
   localStorage.setItem('savedGames', JSON.stringify(saved))
@@ -130,7 +143,6 @@ const startGame = () => {
   router.push(`/report/${gameSession.id}`)
 }
 
-/* ---------- Hilfsfunktion: Basis-Kategorien ----------------------- */
 function buildStartCategories(n) {
   const arr = (v) => Array(n).fill(v)
 
@@ -310,20 +322,22 @@ function buildStartCategories(n) {
       ]
     }
   ]
+
 }
 </script>
 
 <style scoped>
-/* unverändert – dein bisheriger Style-Block */
-.create-teams { max-width: 800px; margin: 0 auto; padding: 2rem; }
-h1            { text-align: center; margin-bottom: 2rem; color: #333 }
-.teams-form   { background: #fff; padding: 2rem; border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0,0,0,.1) }
-.form-group   { margin-bottom: 1.5rem }
-label         { display:block; margin-bottom:.5rem; font-weight:600; color:#333 }
-.team-group   { background:#f8f9fa; padding:1.5rem; border-radius:6px;
-                margin-bottom:1.5rem; border:1px solid #e9ecef }
-.team-group h3{ margin:0 0 1rem 0; color:#495057; font-size:1.1rem }
+.create-teams  { max-width: 800px; margin: 0 auto; padding: 2rem }
+h1             { text-align:center; margin-bottom:2rem; color:#333 }
+.error-banner  { background:#ffdbe0; color:#c00; padding:.6rem 1rem;
+                 border-radius:6px; margin-bottom:1rem; text-align:center }
+.teams-form    { background:#fff; padding:2rem; border-radius:8px;
+                 box-shadow:0 2px 4px rgba(0,0,0,.1) }
+.form-group    { margin-bottom:1.5rem }
+label          { display:block; margin-bottom:.5rem; font-weight:600; color:#333 }
+.team-group    { background:#f8f9fa; padding:1.5rem; border-radius:6px;
+                 margin-bottom:1.5rem; border:1px solid #e9ecef }
+.team-group h3 { margin:0 0 1rem 0; color:#495057; font-size:1.1rem }
 .teams-container{ margin:2rem 0 }
 .submit-button { width:100%; padding:.75rem; font-size:1.1rem; margin-top:1rem }
 @media (min-width:768px){
