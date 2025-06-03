@@ -1,6 +1,5 @@
 <template>
   <div class="about">
-    <Header />
     <Article>
       <h1>About Stratagem</h1>
       <p>
@@ -10,7 +9,6 @@
       </p>
       <Button @click="proceed">Start Game</Button>
     </Article>
-    <Footer />
   </div>
 </template>
 

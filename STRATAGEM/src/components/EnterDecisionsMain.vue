@@ -339,10 +339,10 @@ const validateInput = (event, values, index, isBlur = false) => {
   const value = event.target.value
   // Allow empty during typing, but validate on blur
   if (!isBlur && value === '') return
-  
+
   // Remove any non-numeric characters except decimal point
   const numericValue = value.replace(/[^\d.]/g, '')
-  
+
   // Ensure only one decimal point
   const parts = numericValue.split('.')
   if (parts.length > 2) {
@@ -383,10 +383,10 @@ const calculateNextRound = (currentRound) => {
   const birthsPer1000 = getDecisionValue('Population Minister', 'P7 Annual Births Per 1000')
 
   // Calculate new population based on living conditions
-  const populationGrowth = (foodPerCapita > 1.5 && goodsPerCapita > 1.5 && socialServicesPerCapita > 1.5) 
-    ? birthsPer1000 / 1000 
-    : (foodPerCapita > 1 && goodsPerCapita > 1) 
-      ? (birthsPer1000 * 0.5) / 1000 
+  const populationGrowth = (foodPerCapita > 1.5 && goodsPerCapita > 1.5 && socialServicesPerCapita > 1.5)
+    ? birthsPer1000 / 1000
+    : (foodPerCapita > 1 && goodsPerCapita > 1)
+      ? (birthsPer1000 * 0.5) / 1000
       : 0
 
   const newPopulation = Math.round(population * (1 + populationGrowth))
@@ -400,7 +400,7 @@ const calculateNextRound = (currentRound) => {
 
   const energyForFood = getDecisionValue('Energy Minister', 'E21 Energy For Food Production')
   const foodProductionCapital = getDecisionValue('Food and Environment Minister', 'F3 Total Producing Food Production Capital')
-  
+
   // Food production efficiency based on energy and capital
   const foodProductionEfficiency = Math.min(1, (energyForFood / (foodProductionCapital * 12.5)))
   const baseFoodProduction = foodProductionCapital * 4.3 // Base productivity
@@ -728,86 +728,184 @@ function handleSave() {
 }
 </script>
 
+<style>
+:root {
+  /* Modern color palette */
+  --primary: #3498db;
+  --primary-dark: #2980b9;
+  --secondary: #2ecc71;
+  --secondary-dark: #27ae60;
+  --accent: #9b59b6;
+  --danger: #e74c3c;
+  --warning: #f39c12;
+  --light: #f8f9fa;
+  --dark: #2c3e50;
+  --gray-100: #f8f9fa;
+  --gray-200: #e9ecef;
+  --gray-300: #dee2e6;
+  --gray-400: #ced4da;
+  --gray-500: #adb5bd;
+  --gray-600: #6c757d;
+  --gray-700: #495057;
+  --gray-800: #343a40;
+
+  /* Spacing system */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-xxl: 3rem;
+
+  /* Typography */
+  --font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+
+  /* Borders and shadows */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --box-shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+  --box-shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --box-shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+}
+
+/* Global reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+}
+
+body {
+  background-color: var(--gray-100);
+  color: var(--dark);
+  line-height: 1.5;
+}
+</style>
+
 <style scoped>
 .enter-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: var(--space-xl);
 }
 
 h1 {
-  margin-bottom: 2rem;
-  font-size: 1.5rem;
+  margin-bottom: var(--space-xl);
+  font-size: var(--font-size-xl);
   font-weight: 600;
+  color: var(--dark);
 }
 
 h2 {
-  margin: 1.5rem 0 1rem;
-  font-size: 1.2rem;
+  margin: var(--space-lg) 0 var(--space-md);
+  font-size: var(--font-size-lg);
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--dark);
+  border-left: 4px solid var(--primary);
+  padding-left: var(--space-md);
 }
 
 .team-header {
   display: flex;
-  padding: 1rem;
-  background-color: #f5f5f5;
-  border-radius: 4px;
-  margin-bottom: 1rem;
+  padding: var(--space-md);
+  background-color: var(--gray-200);
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--space-md);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: var(--box-shadow-sm);
 }
 
 .decision-category {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-  margin-bottom: 1.5rem;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--box-shadow-sm);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+  transition: transform var(--transition-normal);
+}
+
+.decision-category:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-md);
 }
 
 .decision-row {
   display: flex;
   align-items: center;
-  padding: 0.5rem;
-  border-bottom: 1px solid #eee;
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--gray-200);
+  transition: background-color var(--transition-fast);
+}
+
+.decision-row:hover {
+  background-color: var(--gray-100);
 }
 
 .decision-label {
   flex: 1;
   font-weight: 500;
-  color: #333;
-  padding-right: 1rem;
+  color: var(--gray-700);
+  padding-right: var(--space-md);
 }
 
 .decision-values {
   display: flex;
-  gap: 1rem;
+  gap: var(--space-md);
 }
 
 .team-value {
   min-width: 80px;
   text-align: center;
   font-weight: bold;
+  color: var(--primary);
 }
 
 .decision-input {
   width: 80px;
-  padding: 0.25rem;
+  padding: var(--space-xs) var(--space-sm);
   text-align: right;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.decision-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+  outline: none;
 }
 
 .decision-input:disabled {
-  background-color: #f5f5f5;
+  background-color: var(--gray-200);
   cursor: not-allowed;
 }
 
 .save-bar {
+  position: sticky;
+  bottom: var(--space-md);
   text-align: center;
-  margin: 3rem 0;
+  margin: var(--space-xxl) 0;
+  padding: var(--space-md);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--box-shadow-md);
+  z-index: 10;
 }
 
-/* Add tooltip styling */
+/* Tooltip styling - improved for accessibility */
 [title] {
   position: relative;
   cursor: help;
@@ -817,16 +915,17 @@ h2 {
   content: attr(title);
   position: absolute;
   bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 5px 10px;
-  background-color: rgba(0, 0, 0, 0.8);
+  left: 0;
+  transform: translateY(-4px);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--dark);
   color: white;
-  border-radius: 4px;
-  font-size: 14px;
-  white-space: nowrap;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  max-width: 300px;
   z-index: 1000;
-  margin-bottom: 5px;
+  box-shadow: var(--box-shadow-md);
+  white-space: normal;
 }
 
 .input-wrapper {
@@ -835,39 +934,41 @@ h2 {
   flex-direction: column;
 }
 
-.decision-input {
-  width: 80px;
-  padding: 0.25rem;
-  text-align: right;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-}
-
-.decision-input:disabled {
-  background-color: #f5f5f5;
-  cursor: not-allowed;
-}
-
 .decision-input.error {
-  border-color: #dc3545;
-  background-color: #fff8f8;
+  border-color: var(--danger);
+  background-color: rgba(231, 76, 60, 0.05);
 }
 
 .error-message {
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.75rem;
-  color: #dc3545;
+  left: 0;
+  font-size: var(--font-size-sm);
+  color: var(--danger);
   white-space: nowrap;
   margin-top: 2px;
 }
 
-/* Ensure the error message doesn't affect layout */
-.decision-values {
-  position: relative;
-  padding-bottom: 20px;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .decision-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .decision-label {
+    margin-bottom: var(--space-sm);
+    padding-right: 0;
+  }
+
+  .decision-values {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: var(--space-md);
+  }
+
+  .team-header {
+    position: relative;
+  }
 }
 </style>
