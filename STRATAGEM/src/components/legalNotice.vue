@@ -1,7 +1,8 @@
 <template>
     <div class="impressum">
-      <h1>Impressum</h1>
-      <p>...</p>
+      <h1>Legal Notice</h1>
+      <p>© Stratagem 2025</p>
+      <p>HTL Rennweg</p>
     </div>
   </template>
   

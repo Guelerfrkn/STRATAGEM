@@ -2,47 +2,60 @@
   <div class="report-container">
     <!-- ───────── Filter-Bereich ───────── -->
     <aside class="filter-bar">
+      <div class="filter-header">
+        <h3>Filter Options</h3>
+        <button class="reset-button" @click="resetFilters" title="Reset all filters to default">
+          <span class="reset-icon">↺</span> Reset
+        </button>
+      </div>
+
       <!-- Runden -->
-      <label>
-        Rounds
-        <select multiple v-model="selectedRounds">
-          <option
-            v-for="r in roundOptions"
-            :key="r"
-            :value="r"
-          >
-            {{ r }}
-          </option>
-        </select>
-      </label>
+      <div class="filter-group">
+        <label>
+          Rounds
+          <select multiple v-model="selectedRounds" class="filter-select">
+            <option
+              v-for="r in roundOptions"
+              :key="r"
+              :value="r"
+            >
+              {{ r }}
+            </option>
+          </select>
+        </label>
+      </div>
 
       <!-- Teams -->
-      <label>
-        Teams
-        <select multiple v-model="selectedTeams">
-          <option
-            v-for="t in teamOptions"
-            :key="t"
-            :value="t"
-          >
-            {{ t }}
-          </option>
-        </select>
-      </label>
+      <div class="filter-group">
+        <label>
+          Teams
+          <select multiple v-model="selectedTeams" class="filter-select">
+            <option
+              v-for="t in teamOptions"
+              :key="t"
+              :value="t"
+            >
+              {{ t }}
+            </option>
+          </select>
+        </label>
+      </div>
 
       <!-- Typen -->
-      <label>
-        Types
-        <select multiple v-model="selectedTypes">
-          <option
-            v-for="n in typeOptions"
-            :key="n"
-            :value="n"
-          >
-            {{ n }}
-          </option>
-        </select>
-      </label>
+      <div class="filter-group">
+        <label>
+          Types
+          <select multiple v-model="selectedTypes" class="filter-select">
+            <option
+              v-for="n in typeOptions"
+              :key="n"
+              :value="n"
+            >
+              {{ n }}
+            </option>
+          </select>
+        </label>
+      </div>
     </aside>
 
     <!-- ───────── Report-Ausgabe ───────── -->
@@ -158,6 +171,12 @@ const scrollToBottom = () =>
 
 const toEnter = () => router.push(`/enter-decisions/${gameSession.value.id}`)
 
+const resetFilters = () => {
+  selectedRounds.value = [...roundOptions.value]
+  selectedTeams.value = [...teamOptions.value]
+  selectedTypes.value = [...typeOptions.value]
+}
+
 /* ────────── onMounted ────────── */
 onMounted(() => {
   const id   = route.params.id
@@ -191,21 +210,89 @@ onMounted(() => {
 /* ====== Filter-Bar ====== */
 .filter-bar{
   display:flex; flex-wrap:wrap; gap:1.5rem;
-  margin-bottom:2rem; padding:1rem 1.25rem;
-  border:1px solid #e0e0e0; border-radius:6px;
-  background:#fafafa;
+  margin-bottom:2rem; padding:1.5rem;
+  border:1px solid #e0e0e0; border-radius:8px;
+  background:#f8f9fa; box-shadow:0 2px 4px rgba(0,0,0,0.05);
 }
-.filter-bar label{
-  display:flex; flex-direction:column; font-size:.9rem; font-weight:600;
-  color:#34495e; min-width:140px;
+
+.filter-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e0e0e0;
 }
-.filter-bar select{
-  margin-top:.35rem; padding:.35rem;
-  border:1px solid #c0c0c0; border-radius:4px;
-  background:#fff; font-size:.85rem; line-height:1.3;
-  min-height:110px; /* 5-6 Optionen sichtbar */
+
+.filter-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
 }
-.filter-bar select:focus{outline:none;border-color:#4a90e2;box-shadow:0 0 0 2px rgba(74,144,226,.25)}
+
+.reset-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #f1f3f5;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  color: #495057;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reset-button:hover {
+  background: #e9ecef;
+  border-color: #ced4da;
+}
+
+.reset-icon {
+  font-size: 1.1rem;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-group label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.filter-select {
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background: white;
+  font-size: 0.9rem;
+  min-height: 120px;
+  transition: all 0.2s ease;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74,144,226,0.25);
+}
+
+.filter-select option {
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+
+.filter-select option:hover {
+  background-color: #f8f9fa;
+}
 
 /* ====== Kopfbereich & Überschriften ====== */
 .header-section{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
