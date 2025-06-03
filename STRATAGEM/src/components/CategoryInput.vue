@@ -1,8 +1,6 @@
 <template>
   <section class="category">
     <h2>{{ name }}</h2>
-
-    <!-- Unterkategorien -->
     <SmallCategoryInput
       v-for="(sub, i) in subcategories"
       :key="i"
@@ -24,6 +22,15 @@ defineProps({
 </script>
 
 <style scoped>
-.category { margin-bottom: 3rem }
-h2       { margin: 1.5rem 0 1rem; font-size: 1.35rem; font-weight: 700 }
+@import '../styles/CategoryInput.css';
+
+.category { 
+  margin-bottom: 3rem 
+}
+
+h2 { 
+  margin: 1.5rem 0 1rem; 
+  font-size: 1.35rem; 
+  font-weight: 700 
+}
 </style>

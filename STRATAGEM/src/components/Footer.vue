@@ -29,41 +29,5 @@ export default {
 </script>
 
 <style scoped>
-.footer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #ffffff;
-  padding: 10px 20px;
-  border-top: 1px solid #ddd; /* optional: für leichte Abgrenzung */
-}
-
-.footer-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  max-width: 1200px;
-}
-
-.footer-nav {
-  display: flex;
-  gap: 20px;
-}
-
-.footer-link {
-  color: rgb(0, 0, 0);
-  text-decoration: none;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-}
-
-.footer-link:hover {
-  text-decoration: underline;
-}
-
-.copyright {
-  font-size: 0.9rem;
-}
+@import '../styles/Footer.css';
 </style>

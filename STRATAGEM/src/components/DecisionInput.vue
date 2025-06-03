@@ -19,11 +19,15 @@ import { defineProps, defineEmits } from 'vue'
 
 const props = defineProps({
   label: String,
-  modelValue: { type:Array, default:()=>[] }
+  modelValue: { 
+    type: Array, 
+    default: () => [] 
+  }
 })
+
 const emit = defineEmits(['update:modelValue'])
 
-function updateValue (i, v) {
+function updateValue(i, v) {
   const clone = [...props.modelValue]
   clone[i] = v
   emit('update:modelValue', clone)
@@ -31,7 +35,20 @@ function updateValue (i, v) {
 </script>
 
 <style scoped>
-.decision-row   { display:flex; border-bottom:1px solid #ccc; padding:.4rem .8rem; }
-.decision-label { flex:1; padding-right:1rem; }
-.decision-inputs{ flex:2; display:flex; gap:1rem; }
+.decision-row {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+  padding: 0.4rem 0.8rem;
+}
+
+.decision-label {
+  flex: 1;
+  padding-right: 1rem;
+}
+
+.decision-inputs {
+  flex: 2;
+  display: flex;
+  gap: 1rem;
+}
 </style>

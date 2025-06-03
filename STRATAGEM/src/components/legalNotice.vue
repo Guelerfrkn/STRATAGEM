@@ -13,12 +13,6 @@
   </script>
   
   <style scoped>
-  .impressum {
-    padding: 20px;
-  }
-  
-  .impressum h1 {
-    margin-bottom: 10px;
-  }
+  @import '../styles/legalNotice.css';
   </style>
   

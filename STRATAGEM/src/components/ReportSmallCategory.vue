@@ -1,14 +1,18 @@
 <template>
   <div>
-    <div style="display: flex; padding: 4px 8px; background-color: #f5f5f5; margin-bottom: 8px;">
-      <span style="flex: 1;">{{ label }}</span>
-      <div style="display: flex; gap: 20px;">
-        <span v-for="(team, index) in teams" :key="index" style="min-width: 80px; text-align: right; font-weight: bold;">
+    <div class="header">
+      <span class="label">{{ label }}</span>
+      <div class="teams">
+        <span 
+          v-for="(team, index) in teams" 
+          :key="index" 
+          class="team-abbr"
+        >
           {{ team.abbreviation }}
         </span>
       </div>
     </div>
-    <ul style="list-style: none; padding: 0;">
+    <ul class="decisions-list">
       <li v-for="(decision, index) in decisions" :key="index">
         <ReportDecision
           :label="decision.label" 
@@ -36,21 +40,32 @@ defineProps({
 </script>
 
 <style scoped>
-.small-category {
-  margin-bottom: 2rem;
+@import '../styles/ReportSmallCategory.css';
+
+.header {
+  display: flex;
+  padding: 4px 8px;
+  background-color: #f5f5f5;
+  margin-bottom: 8px;
 }
 
-h3 {
-  color: #2c3e50;
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
-  font-weight: 600;
+.label {
+  flex: 1;
 }
 
-.decisions {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
+.teams {
+  display: flex;
+  gap: 20px;
+}
+
+.team-abbr {
+  min-width: 80px;
+  text-align: right;
+  font-weight: bold;
+}
+
+.decisions-list {
+  list-style: none;
+  padding: 0;
 }
 </style>  

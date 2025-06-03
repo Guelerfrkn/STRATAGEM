@@ -45,7 +45,7 @@ function validate () {
       const msg = rule(props.modelValue)
       if (msg) { error.value = msg; break }
     } else if (rule === 'required' && !props.modelValue.trim()) {
-      error.value = 'Dieses Feld ist erforderlich.'
+      error.value = 'This field is required.'
       break
     }
   }
@@ -53,11 +53,5 @@ function validate () {
 </script>
 
 <style scoped>
-.input-error {
-  border-color: red;
-}
-
-.input-focused {
-  border-color: blue;
-}
+@import '../styles/TextInput.css';
 </style>
