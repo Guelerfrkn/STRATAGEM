@@ -8,16 +8,20 @@
     <!-- Team Abbreviations Header -->
     <div class="team-header">
       <span class="decision-label">Decision</span>
-      <div class="team-values">
-        <span v-for="team in gameSession?.teams" :key="team.abbreviation" class="team-value">
-          {{ team.abbreviation }}
-        </span>
-      </div>
     </div>
 
     <!-- Decision Categories -->
     <div v-for="(category, idx) in categories" :key="idx" class="decision-category">
       <h2>Decision #{{ idx + 1 }}</h2>
+      <!-- Team abbreviations row above the first decision row -->
+      <div class="decision-row team-abbr-row">
+        <span class="decision-label"></span>
+        <div class="decision-values">
+          <span v-for="team in gameSession?.teams" :key="team.abbreviation" class="team-value">
+            {{ team.abbreviation }}
+          </span>
+        </div>
+      </div>
       <div v-for="(decision, dIdx) in category.decisions" :key="dIdx" class="decision-row">
         <span class="decision-label" :title="getTooltip(decision.label)">{{ decision.label }}</span>
         <div class="decision-values">
@@ -339,10 +343,10 @@ const validateInput = (event, values, index, isBlur = false) => {
   const value = event.target.value
   // Allow empty during typing, but validate on blur
   if (!isBlur && value === '') return
-
+  
   // Remove any non-numeric characters except decimal point
   const numericValue = value.replace(/[^\d.]/g, '')
-
+  
   // Ensure only one decimal point
   const parts = numericValue.split('.')
   if (parts.length > 2) {
@@ -383,10 +387,10 @@ const calculateNextRound = (currentRound) => {
   const birthsPer1000 = getDecisionValue('Population Minister', 'P7 Annual Births Per 1000')
 
   // Calculate new population based on living conditions
-  const populationGrowth = (foodPerCapita > 1.5 && goodsPerCapita > 1.5 && socialServicesPerCapita > 1.5)
-    ? birthsPer1000 / 1000
-    : (foodPerCapita > 1 && goodsPerCapita > 1)
-      ? (birthsPer1000 * 0.5) / 1000
+  const populationGrowth = (foodPerCapita > 1.5 && goodsPerCapita > 1.5 && socialServicesPerCapita > 1.5) 
+    ? birthsPer1000 / 1000 
+    : (foodPerCapita > 1 && goodsPerCapita > 1) 
+      ? (birthsPer1000 * 0.5) / 1000 
       : 0
 
   const newPopulation = Math.round(population * (1 + populationGrowth))
@@ -400,7 +404,7 @@ const calculateNextRound = (currentRound) => {
 
   const energyForFood = getDecisionValue('Energy Minister', 'E21 Energy For Food Production')
   const foodProductionCapital = getDecisionValue('Food and Environment Minister', 'F3 Total Producing Food Production Capital')
-
+  
   // Food production efficiency based on energy and capital
   const foodProductionEfficiency = Math.min(1, (energyForFood / (foodProductionCapital * 12.5)))
   const baseFoodProduction = foodProductionCapital * 4.3 // Base productivity
@@ -728,184 +732,86 @@ function handleSave() {
 }
 </script>
 
-<style>
-:root {
-  /* Modern color palette */
-  --primary: #3498db;
-  --primary-dark: #2980b9;
-  --secondary: #2ecc71;
-  --secondary-dark: #27ae60;
-  --accent: #9b59b6;
-  --danger: #e74c3c;
-  --warning: #f39c12;
-  --light: #f8f9fa;
-  --dark: #2c3e50;
-  --gray-100: #f8f9fa;
-  --gray-200: #e9ecef;
-  --gray-300: #dee2e6;
-  --gray-400: #ced4da;
-  --gray-500: #adb5bd;
-  --gray-600: #6c757d;
-  --gray-700: #495057;
-  --gray-800: #343a40;
-
-  /* Spacing system */
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 1rem;
-  --space-lg: 1.5rem;
-  --space-xl: 2rem;
-  --space-xxl: 3rem;
-
-  /* Typography */
-  --font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-size-sm: 0.875rem;
-  --font-size-md: 1rem;
-  --font-size-lg: 1.25rem;
-  --font-size-xl: 1.5rem;
-
-  /* Borders and shadows */
-  --border-radius-sm: 4px;
-  --border-radius-md: 8px;
-  --border-radius-lg: 12px;
-  --box-shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-  --box-shadow-md: 0 4px 6px rgba(0,0,0,0.1);
-  --box-shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
-
-  /* Transitions */
-  --transition-fast: 150ms ease;
-  --transition-normal: 250ms ease;
-}
-
-/* Global reset */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: var(--font-family);
-}
-
-body {
-  background-color: var(--gray-100);
-  color: var(--dark);
-  line-height: 1.5;
-}
-</style>
-
 <style scoped>
 .enter-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--space-xl);
+  padding: 2rem;
 }
 
 h1 {
-  margin-bottom: var(--space-xl);
-  font-size: var(--font-size-xl);
+  margin-bottom: 2rem;
+  font-size: 1.5rem;
   font-weight: 600;
-  color: var(--dark);
 }
 
 h2 {
-  margin: var(--space-lg) 0 var(--space-md);
-  font-size: var(--font-size-lg);
+  margin: 1.5rem 0 1rem;
+  font-size: 1.2rem;
   font-weight: 600;
-  color: var(--dark);
-  border-left: 4px solid var(--primary);
-  padding-left: var(--space-md);
+  color: #2c3e50;
 }
 
 .team-header {
   display: flex;
-  padding: var(--space-md);
-  background-color: var(--gray-200);
-  border-radius: var(--border-radius-md);
-  margin-bottom: var(--space-md);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  box-shadow: var(--box-shadow-sm);
+  padding: 1rem;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  margin-bottom: 1rem;
 }
 
 .decision-category {
   background: white;
-  border-radius: var(--border-radius-md);
-  box-shadow: var(--box-shadow-sm);
-  padding: var(--space-lg);
-  margin-bottom: var(--space-lg);
-  transition: transform var(--transition-normal);
-}
-
-.decision-category:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--box-shadow-md);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .decision-row {
   display: flex;
   align-items: center;
-  padding: var(--space-sm) var(--space-md);
-  border-bottom: 1px solid var(--gray-200);
-  transition: background-color var(--transition-fast);
-}
-
-.decision-row:hover {
-  background-color: var(--gray-100);
+  padding: 0.5rem;
+  border-bottom: 1px solid #eee;
 }
 
 .decision-label {
   flex: 1;
   font-weight: 500;
-  color: var(--gray-700);
-  padding-right: var(--space-md);
+  color: #333;
+  padding-right: 1rem;
 }
 
 .decision-values {
   display: flex;
-  gap: var(--space-md);
+  gap: 1rem;
 }
 
 .team-value {
   min-width: 80px;
   text-align: center;
   font-weight: bold;
-  color: var(--primary);
 }
 
 .decision-input {
   width: 80px;
-  padding: var(--space-xs) var(--space-sm);
+  padding: 0.25rem;
   text-align: right;
-  border: 1px solid var(--gray-300);
-  border-radius: var(--border-radius-sm);
-  transition: all var(--transition-fast);
-}
-
-.decision-input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-  outline: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 .decision-input:disabled {
-  background-color: var(--gray-200);
+  background-color: #f5f5f5;
   cursor: not-allowed;
 }
 
 .save-bar {
-  position: sticky;
-  bottom: var(--space-md);
   text-align: center;
-  margin: var(--space-xxl) 0;
-  padding: var(--space-md);
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(8px);
-  border-radius: var(--border-radius-md);
-  box-shadow: var(--box-shadow-md);
-  z-index: 10;
+  margin: 3rem 0;
 }
 
-/* Tooltip styling - improved for accessibility */
+/* Add tooltip styling */
 [title] {
   position: relative;
   cursor: help;
@@ -915,17 +821,16 @@ h2 {
   content: attr(title);
   position: absolute;
   bottom: 100%;
-  left: 0;
-  transform: translateY(-4px);
-  padding: var(--space-sm) var(--space-md);
-  background-color: var(--dark);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 10px;
+  background-color: rgba(0, 0, 0, 0.8);
   color: white;
-  border-radius: var(--border-radius-sm);
-  font-size: var(--font-size-sm);
-  max-width: 300px;
+  border-radius: 4px;
+  font-size: 14px;
+  white-space: nowrap;
   z-index: 1000;
-  box-shadow: var(--box-shadow-md);
-  white-space: normal;
+  margin-bottom: 5px;
 }
 
 .input-wrapper {
@@ -934,41 +839,39 @@ h2 {
   flex-direction: column;
 }
 
+.decision-input {
+  width: 80px;
+  padding: 0.25rem;
+  text-align: right;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.decision-input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
 .decision-input.error {
-  border-color: var(--danger);
-  background-color: rgba(231, 76, 60, 0.05);
+  border-color: #dc3545;
+  background-color: #fff8f8;
 }
 
 .error-message {
   position: absolute;
   top: 100%;
-  left: 0;
-  font-size: var(--font-size-sm);
-  color: var(--danger);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: #dc3545;
   white-space: nowrap;
   margin-top: 2px;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .decision-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .decision-label {
-    margin-bottom: var(--space-sm);
-    padding-right: 0;
-  }
-
-  .decision-values {
-    width: 100%;
-    overflow-x: auto;
-    padding-bottom: var(--space-md);
-  }
-
-  .team-header {
-    position: relative;
-  }
+/* Ensure the error message doesn't affect layout */
+.decision-values {
+  position: relative;
+  padding-bottom: 20px;
 }
 </style>
