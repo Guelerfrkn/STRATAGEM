@@ -1,0 +1,720 @@
+<template>
+  <div class="enter-container">
+    <div class="header-section">
+      <h1>
+        Enter Decisions – {{ gameSession?.sessionName }} •
+        Round {{ currentRound }}
+      </h1>
+
+      <Button class="scroll-button" @click="scrollToBottom">
+        Scroll to Bottom
+      </Button>
+    </div>
+
+    <!-- Team Abbreviations Header -->
+    <!-- Removed: <div class="team-header">
+      <span class="decision-label">Decision</span>
+    </div> -->
+
+    <!-- Decision Categories -->
+    <div v-for="(category, idx) in categories" :key="idx" class="decision-category">
+      <h2>Decision #{{ idx + 1 }}</h2>
+      <!-- Team abbreviations row above the first decision row -->
+      <div class="decision-row team-abbr-row">
+        <span class="decision-label"></span>
+        <div class="decision-values">
+          <span v-for="team in gameSession?.teams" :key="team.abbreviation" class="team-value">
+            {{ team.abbreviation }}
+          </span>
+        </div>
+      </div>
+      <div v-for="(decision, dIdx) in category.decisions" :key="dIdx" class="decision-row">
+        <span class="decision-label" :title="getTooltip(decision.label)">{{ decision.label }}</span>
+        <div class="decision-values">
+          <div v-for="(value, vIdx) in decision.values" :key="vIdx" class="input-wrapper">
+            <input type="text" v-model="decision.values[vIdx]" :disabled="decision.label === 'Total Unallocated'"
+              class="decision-input" :class="{ 'error': hasError(decision.values[vIdx], decision.label) }"
+              @input="validateInput($event, decision.values, vIdx)"
+              @blur="validateInput($event, decision.values, vIdx, true)" />
+            <span v-if="hasError(decision.values[vIdx], decision.label)" class="error-message">
+              {{ getErrorMessage(decision.values[vIdx], decision.label) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="save-bar">
+      <Button @click="handleSave" :disabled="hasAnyErrors">Save Decisions</Button>
+    </div>
+  </div>
+</template>
+
+<script setup>
+/* ────────── imports ────────── */
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import Button from './Button.vue'
+import { DECISION_CATEGORIES, TOOLTIPS, DEFAULT_VALUES } from '../constants/decisions'
+import { deepClone, hasError, getErrorMessage, validateInput, loadGame, saveGame } from '../utils/gameUtils'
+
+/* ────────── composables ────────── */
+const route = useRoute()
+const router = useRouter()
+
+/* ────────── state ────────── */
+const gameSession = ref(null)
+const categories = ref([])
+
+/* ────────── computed properties ────────── */
+const currentRound = computed(() => gameSession.value?.history.at(-1).round || 1)
+
+const hasAnyErrors = computed(() => {
+  return categories.value.some(category =>
+    category.decisions.some(decision =>
+      decision.values.some(value => hasError(value, decision.label))
+    )
+  )
+})
+
+const decisionValues = computed(() => {
+  const values = {
+    food: {
+      population: [], // P9
+      export: [],    // P10
+      import: [],    // P11
+      capital: [],   // P12
+      environment: [] // P13
+    },
+    energy: {
+      population: [],      // E20
+      foodProduction: [],  // E21
+      goodsProduction: [], // E22
+      export: [],         // E23
+      import: [],         // E24
+      capital: [],        // E25
+      environment: [],    // E26
+      efficiency: []      // E27
+    },
+    goods: {
+      population: [],           // G18
+      export: [],              // G19
+      import: [],              // F14
+      capital: [],             // F15
+      environment: [],         // TF9
+      socialServices: [],      // TF10
+      efficiency: [],          // TF11
+      energyProduction: []     // TF12
+    },
+    capital: {
+      foodProduction: [],           // TF13
+      goodsProduction: [],          // TF14
+      socialServices: [],           // TF15
+      environmentalProtection: [],  // TF16
+      energyProduction: [],         // TF17
+      energyEfficiency: []          // TF18
+    }
+  }
+
+  // Helper function to get values from a decision
+  const getValues = (categoryIndex, decisionIndex) => {
+    return categories.value[categoryIndex].decisions[decisionIndex].values
+  }
+
+  // Food decisions
+  values.food.population = getValues(0, 0)    // P9
+  values.food.export = getValues(0, 1)        // P10
+  values.food.import = getValues(1, 0)        // P11
+  values.food.capital = getValues(1, 1)       // P12
+  values.food.environment = getValues(1, 2)   // P13
+
+  // Energy decisions
+  values.energy.population = getValues(2, 0)      // E20
+  values.energy.foodProduction = getValues(2, 1)  // E21
+  values.energy.goodsProduction = getValues(2, 2) // E22
+  values.energy.export = getValues(2, 3)         // E23
+  values.energy.import = getValues(3, 0)         // E24
+  values.energy.capital = getValues(3, 1)        // E25
+  values.energy.environment = getValues(4, 0)    // E26
+  values.energy.efficiency = getValues(4, 1)     // E27
+
+  // Goods decisions
+  values.goods.population = getValues(4, 2)           // G18
+  values.goods.export = getValues(4, 3)              // G19
+  values.goods.import = getValues(4, 4)              // F14
+  values.goods.capital = getValues(4, 5)             // F15
+  values.goods.environment = getValues(5, 0)         // TF9
+  values.goods.socialServices = getValues(5, 1)      // TF10
+  values.goods.efficiency = getValues(5, 2)          // TF11
+  values.goods.energyProduction = getValues(5, 3)    // TF12
+
+  // Capital decisions
+  values.capital.foodProduction = getValues(6, 0)           // TF13
+  values.capital.goodsProduction = getValues(7, 0)          // TF14
+  values.capital.socialServices = getValues(8, 0)           // TF15
+  values.capital.environmentalProtection = getValues(8, 1)  // TF16
+  values.capital.energyProduction = getValues(8, 2)         // TF17
+  values.capital.energyEfficiency = getValues(8, 3)         // TF18
+
+  return values
+})
+
+/* ────────── methods ────────── */
+const getTooltip = (label) => TOOLTIPS[label] || 'No description available'
+
+const scrollToBottom = () =>
+  window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' })
+
+/* ────────── initialization ────────── */
+const initializeCategories = () => {
+  categories.value = deepClone(DECISION_CATEGORIES)
+  
+  categories.value.forEach(category => {
+    category.decisions.forEach(decision => {
+      if (decision.label === 'Total Unallocated') {
+        decision.values = Array(gameSession.value.teams.length).fill('')
+      } else {
+        decision.values = Array(gameSession.value.teams.length).fill(DEFAULT_VALUES[decision.label] || 0)
+      }
+    })
+  })
+}
+
+/* ────────── lifecycle hooks ────────── */
+onMounted(() => {
+  const id = route.params.id
+  const game = loadGame(id)
+
+  if (!game) {
+    alert('Game not found – returning home')
+    router.push('/')
+    return
+  }
+
+  gameSession.value = game
+  initializeCategories()
+})
+
+/* ────────── save functionality ────────── */
+let saving = false
+
+const handleSave = () => {
+  if (saving || hasAnyErrors.value) return
+  saving = true
+
+  // Convert string values to numbers
+  categories.value.forEach(c =>
+    c.decisions.forEach(d =>
+      d.values = d.values.map(v => (v === '' ? '' : Number(v)))
+    )
+  )
+
+  // Create the original category structure for the report page
+  const reportCategories = [
+    {
+      name: 'Population Minister',
+      subcategories: [
+        {
+          label: 'Current Situation',
+          decisions: [
+            { label: 'P1 Population', values: Array(gameSession.value.teams.length).fill(200) },
+            { label: 'P2 Total Food Available', values: Array(gameSession.value.teams.length).fill(3300) },
+            { label: 'P3 Total Goods Available', values: Array(gameSession.value.teams.length).fill(3500) }
+          ]
+        },
+        {
+          label: 'Useful Information',
+          decisions: [
+            { label: 'P4 Food Per Capita', values: Array(gameSession.value.teams.length).fill(2) },
+            { label: 'P5 Goods Per Capita', values: Array(gameSession.value.teams.length).fill(2) },
+            { label: 'P6 Social Services Capital Per Capita', values: Array(gameSession.value.teams.length).fill(2.25) },
+            { label: 'P7 Annual Births Per 1000', values: Array(gameSession.value.teams.length).fill(41) },
+            { label: 'P9 Food For Population', values: decisionValues.value.food.population },
+            { label: 'P10 Food For Export', values: decisionValues.value.food.export },
+            { label: 'P11 Food For Import', values: decisionValues.value.food.import },
+            { label: 'P12 Food For Capital', values: decisionValues.value.food.capital },
+            { label: 'P13 Food For Environment', values: decisionValues.value.food.environment }
+          ]
+        }
+      ]
+    },
+    {
+      name: 'Energy Minister',
+      subcategories: [
+        {
+          label: 'Current Situation',
+          decisions: [
+            { label: 'E1 Worn Out Energy Production Capital', values: Array(gameSession.value.teams.length).fill(160) },
+            { label: 'E2 New Energy Production Capital', values: Array(gameSession.value.teams.length).fill(640) },
+            { label: 'E3 Total Producing Energy Production Capital', values: Array(gameSession.value.teams.length).fill(800) },
+            { label: 'E4 Worn Out Energy Efficiency Capital', values: Array(gameSession.value.teams.length).fill(0) },
+            { label: 'E5 New Energy Efficiency Capital', values: Array(gameSession.value.teams.length).fill(0) },
+            { label: 'E6 Total Producing Energy Efficiency Capital', values: Array(gameSession.value.teams.length).fill(0) },
+            { label: 'E7 Total Energy Available', values: Array(gameSession.value.teams.length).fill(15000) }
+          ]
+        },
+        {
+          label: 'Useful Information',
+          decisions: [
+            { label: 'E8 Energy Required Per Unit of Goods for Population', values: Array(gameSession.value.teams.length).fill(0.2) },
+            { label: 'E9 Energy for Population', values: Array(gameSession.value.teams.length).fill(400) },
+            { label: 'E10 Energy Consumption Multiplier', values: Array(gameSession.value.teams.length).fill(1) },
+            { label: 'E11 Energy Required Per Unit of Food Production Capital', values: Array(gameSession.value.teams.length).fill(12.5) },
+            { label: 'E12 Energy Required for Full Use of Food Production Capital', values: Array(gameSession.value.teams.length).fill(10000) },
+            { label: 'E13 Energy Required Per Unit of Goods Production Capital', values: Array(gameSession.value.teams.length).fill(20) },
+            { label: 'E14 Energy Required for Full Use of Goods Production Capital', values: Array(gameSession.value.teams.length).fill(6000) },
+            { label: 'E15 Total Energy Required for Production', values: Array(gameSession.value.teams.length).fill(16000) },
+            { label: 'E16 Average Energy Per Unit Energy Production Capital', values: Array(gameSession.value.teams.length).fill(17.5) },
+            { label: 'E17 Energy Production This Cycle', values: Array(gameSession.value.teams.length).fill(14000) },
+            { label: 'E18 Energy Exports', values: Array(gameSession.value.teams.length).fill(0) },
+            { label: 'E19 Energy Imports', values: Array(gameSession.value.teams.length).fill(1000) },
+            { label: 'E20 Energy For Population', values: decisionValues.value.energy.population },
+            { label: 'E21 Energy For Food Production', values: decisionValues.value.energy.foodProduction },
+            { label: 'E22 Energy For Goods Production', values: decisionValues.value.energy.goodsProduction },
+            { label: 'E23 Energy For Export', values: decisionValues.value.energy.export },
+            { label: 'E24 Energy For Import', values: decisionValues.value.energy.import },
+            { label: 'E25 Energy For Capital', values: decisionValues.value.energy.capital },
+            { label: 'E26 Energy For Environment', values: decisionValues.value.energy.environment },
+            { label: 'E27 Energy For Efficiency', values: decisionValues.value.energy.efficiency }
+          ]
+        }
+      ]
+    },
+    {
+      name: 'Goods and Services Minister',
+      subcategories: [
+        {
+          label: 'Current Situation',
+          decisions: [
+            { label: 'G1 Worn Out Goods Production Capital', values: Array(gameSession.value.teams.length).fill(60) },
+            { label: 'G2 New Goods Production Capital', values: Array(gameSession.value.teams.length).fill(240) },
+            { label: 'G3 Total Producing Goods Production Capital', values: Array(gameSession.value.teams.length).fill(300) },
+            { label: 'G4 Worn Out Social Services Capital', values: Array(gameSession.value.teams.length).fill(50) },
+            { label: 'G5 New Social Services Capital', values: Array(gameSession.value.teams.length).fill(400) },
+            { label: 'G6 Total Producing Social Services Capital', values: Array(gameSession.value.teams.length).fill(240) }
+          ]
+        },
+        {
+          label: 'Useful Information',
+          decisions: [
+            { label: 'G7 Goods Production Capital Per Labourer', values: Array(gameSession.value.teams.length).fill(6) },
+            { label: 'G8 Goods Production Multiplier from Goods Production Capital', values: Array(gameSession.value.teams.length).fill(5) },
+            { label: 'G9 Social Services Capital Per Capital', values: Array(gameSession.value.teams.length).fill(2.25) },
+            { label: 'G10 Labour Output Multiplier from Social Services', values: Array(gameSession.value.teams.length).fill(2.13) },
+            { label: 'G11 Capacity Utilization', values: Array(gameSession.value.teams.length).fill(1) },
+            { label: 'G12 Goods Production', values: Array(gameSession.value.teams.length).fill(3000) },
+            { label: 'G13 Goods Export', values: Array(gameSession.value.teams.length).fill(0) },
+            { label: 'G14 Goods Imports', values: Array(gameSession.value.teams.length).fill(500) },
+            { label: 'G15 Expected Goods Production', values: Array(gameSession.value.teams.length).fill(3100) },
+            { label: 'G16 Total Goods Available', values: Array(gameSession.value.teams.length).fill(3500) },
+            { label: 'G17 Total Worn Out Capital', values: Array(gameSession.value.teams.length).fill(430) },
+            { label: 'G18 Goods For Population', values: decisionValues.value.goods.population },
+            { label: 'G19 Goods For Export', values: decisionValues.value.goods.export }
+          ]
+        }
+      ]
+    },
+    {
+      name: 'Food and Environment Minister',
+      subcategories: [
+        {
+          label: 'Current Situation',
+          decisions: [
+            { label: 'F1 Worn Out Food Production Capital', values: Array(gameSession.value.teams.length).fill(160) },
+            { label: 'F2 New Food Production Capital', values: Array(gameSession.value.teams.length).fill(640) },
+            { label: 'F3 Total Producing Food Production Capital', values: Array(gameSession.value.teams.length).fill(800) },
+            { label: 'F4 Worn Out Environmental Protection Capital', values: Array(gameSession.value.teams.length).fill(0) },
+            { label: 'F5 New Environmental Protection Capital', values: Array(gameSession.value.teams.length).fill(0) },
+            { label: 'F6 Total Producing Environmental Protection Capital', values: Array(gameSession.value.teams.length).fill(0) }
+          ]
+        },
+        {
+          label: 'Useful Information',
+          decisions: [
+            { label: 'F7 Quality of the Environment', values: Array(gameSession.value.teams.length).fill(0.69) },
+            { label: 'F8 Ratio of Food Production Capital to Ag. Land Area', values: Array(gameSession.value.teams.length).fill(0.8) },
+            { label: 'F9 Expected Food Production', values: Array(gameSession.value.teams.length).fill(3450) },
+            { label: 'F10 Capacity Utilization', values: Array(gameSession.value.teams.length).fill(1) },
+            { label: 'F11 Food Production', values: Array(gameSession.value.teams.length).fill(3300) },
+            { label: 'F12 Food Exports', values: Array(gameSession.value.teams.length).fill(1550) },
+            { label: 'F13 Food Imports', values: Array(gameSession.value.teams.length).fill(0) },
+            { label: 'F14 Goods For Import', values: decisionValues.value.goods.import },
+            { label: 'F15 Goods For Capital', values: decisionValues.value.goods.capital }
+          ]
+        }
+      ]
+    },
+    {
+      name: 'Trade and Finance Minister',
+      subcategories: [
+        {
+          label: 'Current Situation',
+          decisions: [
+            { label: 'TF1 Debt', values: Array(gameSession.value.teams.length).fill(0) }
+          ]
+        },
+        {
+          label: 'Useful Information',
+          decisions: [
+            { label: 'TF2 Interest Rate', values: Array(gameSession.value.teams.length).fill(0.1) },
+            { label: 'TF3 Price Multiplier for Imports', values: Array(gameSession.value.teams.length).fill(1) },
+            { label: 'TF4 Interest Charges', values: Array(gameSession.value.teams.length).fill(0) },
+            { label: 'TF5 Maximum Loan Available', values: Array(gameSession.value.teams.length).fill(1000) },
+            { label: 'TF6 Price of Imported Energy', values: Array(gameSession.value.teams.length).fill(1) },
+            { label: 'TF7 Price of Imported Goods', values: Array(gameSession.value.teams.length).fill(1.1) },
+            { label: 'TF8 Price of Imported Food', values: Array(gameSession.value.teams.length).fill(1.1) },
+            { label: 'TF9 Goods For Environment', values: decisionValues.value.goods.environment },
+            { label: 'TF10 Goods For Social Services', values: decisionValues.value.goods.socialServices },
+            { label: 'TF11 Goods For Efficiency', values: decisionValues.value.goods.efficiency },
+            { label: 'TF12 Goods For Energy Production', values: decisionValues.value.goods.energyProduction },
+            { label: 'TF13 New Food Production Capital', values: decisionValues.value.capital.foodProduction },
+            { label: 'TF14 New Goods Production Capital', values: decisionValues.value.capital.goodsProduction },
+            { label: 'TF15 New Social Services Capital', values: decisionValues.value.capital.socialServices },
+            { label: 'TF16 New Environmental Protection Capital', values: decisionValues.value.capital.environmentalProtection },
+            { label: 'TF17 New Energy Production Capital', values: decisionValues.value.capital.energyProduction },
+            { label: 'TF18 New Energy Efficiency Capital', values: decisionValues.value.capital.energyEfficiency }
+          ]
+        }
+      ]
+    },
+    {
+      name: 'Summary',
+      subcategories: [
+        {
+          label: 'Summary of all Stats',
+          decisions: [
+            { label: 'S1 Population (P1)', values: Array(gameSession.value.teams.length).fill(200) },
+            { label: 'S2 Food Per Capita (P4)', values: Array(gameSession.value.teams.length).fill(2) },
+            { label: 'S3 Goods Per Capita (P6)', values: Array(gameSession.value.teams.length).fill(2) },
+            { label: 'S4 Population Growth Rate ((P8-P5)/1000)', values: Array(gameSession.value.teams.length).fill(0.023) },
+            { label: 'S5 Debt (TF1)', values: Array(gameSession.value.teams.length).fill(0) },
+            { label: 'S6 Quality of the Environment (F7)', values: Array(gameSession.value.teams.length).fill(0.69) },
+            { label: 'S7 Energy Consumption Multiplier (E10)', values: Array(gameSession.value.teams.length).fill(1) },
+            { label: 'S8 Average Food Capital Productivity (F9/F3)', values: Array(gameSession.value.teams.length).fill(4.3) },
+            { label: 'S9 Average Goods Capital Productivity (G15/(G3+G6))', values: Array(gameSession.value.teams.length).fill(4.1) },
+            { label: 'S10 Average Energy Capital Productivity (E17/E3)', values: Array(gameSession.value.teams.length).fill(17.5) },
+            { label: 'S11 Total Food Available (P2)', values: Array(gameSession.value.teams.length).fill(3300) },
+            { label: 'S12 Total Goods Available (P3)', values: Array(gameSession.value.teams.length).fill(3500) },
+            { label: 'S13 Total Energy Available (E7)', values: Array(gameSession.value.teams.length).fill(15000) },
+            { label: 'S14 Average Exports', values: Array(gameSession.value.teams.length).fill(1000) }
+          ]
+        }
+      ]
+    }
+  ]
+
+  // Update current round
+  const hist = gameSession.value.history
+  hist[hist.length - 1].categories = reportCategories
+
+  // Calculate and create new round
+  const nextRound = calculateNextRound(hist[hist.length - 1])
+  hist.push({
+    round: hist.at(-1).round + 1,
+    categories: nextRound.categories
+  })
+
+  // Save game and navigate
+  saveGame(gameSession.value)
+  router.push(`/report/${gameSession.value.id}`)
+}
+
+/* ---------- calculations -------------------------------------------- */
+const calculateNextRound = (currentRound) => {
+  const round = currentRound.categories
+  const nextRound = deepClone(currentRound)
+
+  // Helper function to get decision values
+  const getDecisionValue = (categoryName, decisionLabel) => {
+    const category = round.find(c => c.name === categoryName)
+    if (!category) return 0
+    const subcategory = category.subcategories.find(s => s.label === 'Useful Information')
+    if (!subcategory) return 0
+    const decision = subcategory.decisions.find(d => d.label === decisionLabel)
+    return decision ? decision.values[0] : 0
+  }
+
+  // Calculate Population changes
+  const population = getDecisionValue('Population Minister', 'P1 Population')
+  const foodPerCapita = getDecisionValue('Population Minister', 'P4 Food Per Capita')
+  const goodsPerCapita = getDecisionValue('Population Minister', 'P5 Goods Per Capita')
+  const socialServicesPerCapita = getDecisionValue('Population Minister', 'P6 Social Services Capital Per Capita')
+  const birthsPer1000 = getDecisionValue('Population Minister', 'P7 Annual Births Per 1000')
+
+  // Calculate new population based on living conditions
+  const populationGrowth = (foodPerCapita > 1.5 && goodsPerCapita > 1.5 && socialServicesPerCapita > 1.5)
+    ? birthsPer1000 / 1000
+    : (foodPerCapita > 1 && goodsPerCapita > 1)
+      ? (birthsPer1000 * 0.5) / 1000
+      : 0
+
+  const newPopulation = Math.round(population * (1 + populationGrowth))
+
+  // Calculate Food Production
+  const foodForPopulation = getDecisionValue('Population Minister', 'P9 Food For Population')
+  const foodForExport = getDecisionValue('Population Minister', 'P10 Food For Export')
+  const foodForImport = getDecisionValue('Population Minister', 'P11 Food For Import')
+  const foodForCapital = getDecisionValue('Population Minister', 'P12 Food For Capital')
+  const foodForEnvironment = getDecisionValue('Population Minister', 'P13 Food For Environment')
+
+  const energyForFood = getDecisionValue('Energy Minister', 'E21 Energy For Food Production')
+  const foodProductionCapital = getDecisionValue('Food and Environment Minister', 'F3 Total Producing Food Production Capital')
+
+  // Food production efficiency based on energy and capital
+  const foodProductionEfficiency = Math.min(1, (energyForFood / (foodProductionCapital * 12.5)))
+  const baseFoodProduction = foodProductionCapital * 4.3 // Base productivity
+  const newFoodProduction = Math.round(baseFoodProduction * foodProductionEfficiency)
+
+  // Calculate Energy Production
+  const energyForPopulation = getDecisionValue('Energy Minister', 'E20 Energy For Population')
+  const energyForGoods = getDecisionValue('Energy Minister', 'E22 Energy For Goods Production')
+  const energyForExport = getDecisionValue('Energy Minister', 'E23 Energy For Export')
+  const energyForImport = getDecisionValue('Energy Minister', 'E24 Energy For Import')
+  const energyForCapital = getDecisionValue('Energy Minister', 'E25 Energy For Capital')
+  const energyForEnvironment = getDecisionValue('Energy Minister', 'E26 Energy For Environment')
+  const energyForEfficiency = getDecisionValue('Energy Minister', 'E27 Energy For Efficiency')
+
+  const energyProductionCapital = getDecisionValue('Energy Minister', 'E3 Total Producing Energy Production Capital')
+  const energyEfficiencyCapital = getDecisionValue('Energy Minister', 'E6 Total Producing Energy Efficiency Capital')
+
+  // Energy production with efficiency improvements
+  const baseEnergyProduction = energyProductionCapital * 17.5
+  const efficiencyBonus = 1 + (energyEfficiencyCapital * 0.1)
+  const newEnergyProduction = Math.round(baseEnergyProduction * efficiencyBonus)
+
+  // Calculate Goods Production
+  const goodsForPopulation = getDecisionValue('Goods and Services Minister', 'G18 Goods For Population')
+  const goodsForExport = getDecisionValue('Goods and Services Minister', 'G19 Goods For Export')
+  const goodsForImport = getDecisionValue('Food and Environment Minister', 'F14 Goods For Import')
+  const goodsForCapital = getDecisionValue('Food and Environment Minister', 'F15 Goods For Capital')
+  const goodsForEnvironment = getDecisionValue('Trade and Finance Minister', 'TF9 Goods For Environment')
+  const goodsForSocialServices = getDecisionValue('Trade and Finance Minister', 'TF10 Goods For Social Services')
+  const goodsForEfficiency = getDecisionValue('Trade and Finance Minister', 'TF11 Goods For Efficiency')
+  const goodsForEnergyProduction = getDecisionValue('Trade and Finance Minister', 'TF12 Goods For Energy Production')
+
+  const goodsProductionCapital = getDecisionValue('Goods and Services Minister', 'G3 Total Producing Goods Production Capital')
+  const socialServicesCapital = getDecisionValue('Goods and Services Minister', 'G6 Total Producing Social Services Capital')
+
+  // Goods production with social services bonus
+  const socialServicesBonus = 1 + (socialServicesCapital * 0.05)
+  const baseGoodsProduction = goodsProductionCapital * 5
+  const newGoodsProduction = Math.round(baseGoodsProduction * socialServicesBonus)
+
+  // Calculate Capital Changes
+  const newFoodCapital = getDecisionValue('Trade and Finance Minister', 'TF13 New Food Production Capital')
+  const newGoodsCapital = getDecisionValue('Trade and Finance Minister', 'TF14 New Goods Production Capital')
+  const newSocialServicesCapital = getDecisionValue('Trade and Finance Minister', 'TF15 New Social Services Capital')
+  const newEnvironmentalCapital = getDecisionValue('Trade and Finance Minister', 'TF16 New Environmental Protection Capital')
+  const newEnergyProductionCapital = getDecisionValue('Trade and Finance Minister', 'TF17 New Energy Production Capital')
+  const newEnergyEfficiencyCapital = getDecisionValue('Trade and Finance Minister', 'TF18 New Energy Efficiency Capital')
+
+  // Update next round values
+  nextRound.categories.forEach(category => {
+    category.subcategories.forEach(subcategory => {
+      subcategory.decisions.forEach(decision => {
+        // Update population-related values
+        if (decision.label === 'P1 Population') {
+          decision.values = decision.values.map(() => newPopulation)
+        }
+        // Update food-related values
+        else if (decision.label === 'P2 Total Food Available') {
+          decision.values = decision.values.map(() => newFoodProduction)
+        }
+        // Update goods-related values
+        else if (decision.label === 'P3 Total Goods Available') {
+          decision.values = decision.values.map(() => newGoodsProduction)
+        }
+        // Update per capita values
+        else if (decision.label === 'P4 Food Per Capita') {
+          decision.values = decision.values.map(() => newFoodProduction / newPopulation)
+        }
+        else if (decision.label === 'P5 Goods Per Capita') {
+          decision.values = decision.values.map(() => newGoodsProduction / newPopulation)
+        }
+        // Update capital values
+        else if (decision.label === 'E2 New Energy Production Capital') {
+          decision.values = decision.values.map(() => newEnergyProductionCapital)
+        }
+        else if (decision.label === 'E5 New Energy Efficiency Capital') {
+          decision.values = decision.values.map(() => newEnergyEfficiencyCapital)
+        }
+        else if (decision.label === 'G2 New Goods Production Capital') {
+          decision.values = decision.values.map(() => newGoodsCapital)
+        }
+        else if (decision.label === 'G5 New Social Services Capital') {
+          decision.values = decision.values.map(() => newSocialServicesCapital)
+        }
+        else if (decision.label === 'F2 New Food Production Capital') {
+          decision.values = decision.values.map(() => newFoodCapital)
+        }
+        else if (decision.label === 'F5 New Environmental Protection Capital') {
+          decision.values = decision.values.map(() => newEnvironmentalCapital)
+        }
+      })
+    })
+  })
+
+  return nextRound
+}
+</script>
+
+<style scoped>
+.enter-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Header Section & Scroll Button */
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.scroll-button {
+  background: #5C6BC0; /* indigo-lighten-1 */
+  color: #fff;
+  padding: .55rem 1rem;
+  border-radius: 4px;
+  transition: .15s background;
+}
+
+.scroll-button:hover {
+  background: #3F51B5; /* indigo-base */
+}
+
+h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: white;
+  background: #7986CB;
+  padding: 1rem;
+  border-radius: 8px 8px 0 0;
+}
+
+.decision-category {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+}
+
+.decision-row {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e9ecef;
+  transition: background 0.3s;
+}
+
+.decision-row:last-child {
+  border-bottom: none;
+}
+
+.decision-row:hover {
+  background: #f8f9fa;
+}
+
+.decision-label {
+  flex: 1;
+  font-weight: 500;
+  color: #2c3e50;
+  padding-right: 1rem;
+}
+
+.decision-values {
+  display: flex;
+  gap: 1rem;
+}
+
+.team-value {
+  min-width: 80px;
+  text-align: center;
+  font-weight: bold;
+  color: #495057;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.decision-input {
+  width: 80px;
+  padding: 0.5rem;
+  text-align: right;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.decision-input:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+}
+
+.decision-input.error {
+  border-color: #dc3545;
+  background-color: #fff8f8;
+}
+
+.error-message {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: #dc3545;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+.save-bar {
+  text-align: center;
+  margin: 3rem 0;
+  padding: 2rem 0;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Add tooltip styling */
+[title] {
+  position: relative;
+  cursor: help;
+}
+
+[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 10px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 4px;
+  font-size: 14px;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 5px;
+}
+
+/* Ensure the error message doesn't affect layout */
+.decision-values {
+  position: relative;
+  padding-bottom: 20px;
+}
+</style>

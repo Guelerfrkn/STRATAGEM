@@ -1,0 +1,15 @@
+div {
+  margin-bottom: 1em;
+}
+
+label {
+  display: inline-block;
+  margin-right: 0.5em;
+}
+
+select {
+  padding: 0.5em;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 1em;
+} 
