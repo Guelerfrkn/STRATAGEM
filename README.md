@@ -1,5 +1,7 @@
 # STRATAGEM
 
+![banner](https://github.com/user-attachments/assets/76ea556c-2b84-4f5b-93c9-41386483e241)
+
 ## 0) Voraussetzungen
 
 1. **Node.js LTS** installieren:  
