@@ -82,7 +82,7 @@ Auch hier: URL aus dem Terminal im Browser öffnen.
 2. ZIP **entpacken** (Rechtsklick → „Alle extrahieren…“)  
 3. **PowerShell** öffnen und in den entpackten Ordner wechseln:
    ```powershell
-   cd C:\Users\==<DeinName>==\Downloads\STRATAGEM-main
+   cd C:\Users\<DeinName>\Downloads\STRATAGEM-main
    cd stratagem
    cd FINAL VERSION
    ```
@@ -101,7 +101,9 @@ Auch hier: URL aus dem Terminal im Browser öffnen.
 ### macOS
 
 1. Auf GitHub → **Code** → **Download ZIP**  
+
 <img width="426" height="368" alt="Screenshot 2025-10-01 at 08 20 34" src="https://github.com/user-attachments/assets/6f0b7ad9-9439-4e9f-af5e-6f2df965ea63" />
+
 2. ZIP **entpacken** (Doppelklick)  
 3. **Terminal** öffnen und in den Ordner wechseln:
    ```bash
