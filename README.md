@@ -1,12 +1,5 @@
 # STRATAGEM
 
-# Vue-Projekt von GitHub lokal starten — super einfach (Windows & macOS)
-
-> Dieses Dokument ist **für Anfänger**. Schritt für Schritt, ohne Fachchinesisch.  
-> Du hast **zwei Wege**: mit **Git (clone)** oder per **ZIP-Download**.
-
----
-
 ## 0) Voraussetzungen
 
 1. **Node.js LTS** (empfohlen 20.x) installieren:  
@@ -24,7 +17,7 @@
      git --version
      ```
 
-> Wenn Git fehlt, nimm einfach **Methode B (ZIP)**.
+> Wenn Git fehlt, einfach **Methode B (ZIP)**.
 
 ---
 
@@ -34,13 +27,15 @@
 
 ```powershell
 # 1) In den Ordner wechseln, wo du das Projekt haben willst
-cd C:\Users\<DeinName>\Documents
+cd C:\Users\==<DeinName>==\Documents
 
 # 2) Repo klonen (URL aus GitHub kopieren)
-git clone <REPO-URL>
+git clone https://github.com/Guelerfrkn/STRATAGEM
 
-# 3) In den Projektordner wechseln
-cd <Projektordner>
+# 3) In den Projektordner
+cd STRATAGEM-main
+cd stratagem
+cd FINAL VERSION
 
 # 4) Pakete installieren
 npm install
@@ -61,10 +56,12 @@ Diese im Browser öffnen → du siehst die App.
 cd ~/Documents
 
 # 2) Repo klonen
-git clone <REPO-URL>
+git clone https://github.com/Guelerfrkn/STRATAGEM
 
 # 3) In den Projektordner
-cd <Projektordner>
+cd STRATAGEM-main
+cd stratagem
+cd FINAL VERSION
 
 # 4) Pakete installieren
 npm install
@@ -85,7 +82,9 @@ Auch hier: URL aus dem Terminal im Browser öffnen.
 2. ZIP **entpacken** (Rechtsklick → „Alle extrahieren…“)  
 3. **PowerShell** öffnen und in den entpackten Ordner wechseln:
    ```powershell
-   cd C:\Users\<DeinName>\Downloads\<EntpackterOrdner>
+   cd C:\Users\==<DeinName>==\Downloads\STRATAGEM-main
+   cd stratagem
+   cd FINAL VERSION
    ```
 4. Pakete installieren:
    ```powershell
@@ -102,10 +101,13 @@ Auch hier: URL aus dem Terminal im Browser öffnen.
 ### macOS
 
 1. Auf GitHub → **Code** → **Download ZIP**  
+<img width="426" height="368" alt="Screenshot 2025-10-01 at 08 20 34" src="https://github.com/user-attachments/assets/6f0b7ad9-9439-4e9f-af5e-6f2df965ea63" />
 2. ZIP **entpacken** (Doppelklick)  
 3. **Terminal** öffnen und in den Ordner wechseln:
    ```bash
-   cd ~/Downloads/<EntpackterOrdner>
+   cd ~/Downloads/STRATAGEM-main
+   cd stratagem
+   cd FINAL VERSION
    ```
 4. Pakete installieren:
    ```bash
@@ -119,40 +121,7 @@ Auch hier: URL aus dem Terminal im Browser öffnen.
 
 ---
 
-## 3) Häufige Probleme
-
-- **„npm“ nicht gefunden:** Node.js ist nicht installiert → zuerst Node installieren.  
-- **Seite bleibt leer / Fehler:** Schau, ob es eine `.env.example` gibt:
-  ```bash
-  # Windows
-  copy .env.example .env
-
-  # macOS
-  cp .env.example .env
-  ```
-  Danach `.env` bearbeiten und erneut starten:
-  ```bash
-  npm run dev
-  ```
-- **Port belegt (5173):**
-  ```bash
-  npm run dev -- --port 5174
-  ```
-- **Installation hängt:**
-  ```bash
-  # Windows
-  rmdir /s /q node_modules
-
-  # macOS
-  rm -rf node_modules
-
-  npm install
-  npm run dev
-  ```
-
----
-
-## 4) Kurzfassung (Checkliste)
+## 3) Kurzfassung (Checkliste)
 
 1. Node installieren → `node -v` & `npm -v` prüfen  
 2. **Git clone** oder **ZIP entpacken**  
@@ -160,34 +129,6 @@ Auch hier: URL aus dem Terminal im Browser öffnen.
 4. `npm install`  
 5. `npm run dev`  
 6. Link im Browser öffnen ✅
-
----
-
-## 5) Extra-Wissen (optional)
-
-- Moderne Vue-Projekte:  
-  ```bash
-  npm run dev
-  ```
-  Standard-Port: **5173**
-
-- Ältere Vue-CLI-Projekte:  
-  ```bash
-  npm run serve
-  ```
-  Standard-Port: **8080**
-
-- Alternativen zu `npm`:  
-  ```bash
-  # Mit yarn
-  yarn install
-  yarn dev
-
-  # Mit pnpm
-  pnpm install
-  pnpm dev
-  ```
-
 
 ---
 
