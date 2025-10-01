@@ -1,5 +1,196 @@
 # STRATAGEM
 
+# Vue-Projekt von GitHub lokal starten — super einfach (Windows & macOS)
+
+> Dieses Dokument ist **für Anfänger**. Schritt für Schritt, ohne Fachchinesisch.  
+> Du hast **zwei Wege**: mit **Git (clone)** oder per **ZIP-Download**.
+
+---
+
+## 0) Voraussetzungen
+
+1. **Node.js LTS** (empfohlen 20.x) installieren:  
+   - [Node.js Download](https://nodejs.org)  
+   - Prüfen:
+     ```bash
+     node -v
+     npm -v
+     ```
+     Wenn beide Befehle eine Zahl zeigen, passt’s.
+
+2. **Git** (nur für die `git clone`-Methode):  
+   - Prüfen:
+     ```bash
+     git --version
+     ```
+
+> Wenn Git fehlt, nimm einfach **Methode B (ZIP)**.
+
+---
+
+## 1) Methode A: Repository mit Git klonen
+
+### Windows (PowerShell oder Eingabeaufforderung)
+
+```powershell
+# 1) In den Ordner wechseln, wo du das Projekt haben willst
+cd C:\Users\<DeinName>\Documents
+
+# 2) Repo klonen (URL aus GitHub kopieren)
+git clone <REPO-URL>
+
+# 3) In den Projektordner wechseln
+cd <Projektordner>
+
+# 4) Pakete installieren
+npm install
+
+# 5) Entwicklungsserver starten
+npm run dev
+```
+
+Die Konsole zeigt dir eine **lokale URL** (z. B. http://localhost:5173).  
+Diese im Browser öffnen → du siehst die App.
+
+---
+
+### macOS (Terminal)
+
+```bash
+# 1) In den Zielordner
+cd ~/Documents
+
+# 2) Repo klonen
+git clone <REPO-URL>
+
+# 3) In den Projektordner
+cd <Projektordner>
+
+# 4) Pakete installieren
+npm install
+
+# 5) Entwicklungsserver starten
+npm run dev
+```
+
+Auch hier: URL aus dem Terminal im Browser öffnen.
+
+---
+
+## 2) Methode B: ZIP von GitHub laden (ohne Git)
+
+### Windows
+
+1. Auf GitHub → **Code** → **Download ZIP**  
+2. ZIP **entpacken** (Rechtsklick → „Alle extrahieren…“)  
+3. **PowerShell** öffnen und in den entpackten Ordner wechseln:
+   ```powershell
+   cd C:\Users\<DeinName>\Downloads\<EntpackterOrdner>
+   ```
+4. Pakete installieren:
+   ```powershell
+   npm install
+   ```
+5. Entwicklungsserver starten:
+   ```powershell
+   npm run dev
+   ```
+6. **Link aus der Konsole** im Browser öffnen (z. B. http://localhost:5173).
+
+---
+
+### macOS
+
+1. Auf GitHub → **Code** → **Download ZIP**  
+2. ZIP **entpacken** (Doppelklick)  
+3. **Terminal** öffnen und in den Ordner wechseln:
+   ```bash
+   cd ~/Downloads/<EntpackterOrdner>
+   ```
+4. Pakete installieren:
+   ```bash
+   npm install
+   ```
+5. Entwicklungsserver starten:
+   ```bash
+   npm run dev
+   ```
+6. **Link aus dem Terminal** im Browser öffnen.
+
+---
+
+## 3) Häufige Probleme
+
+- **„npm“ nicht gefunden:** Node.js ist nicht installiert → zuerst Node installieren.  
+- **Seite bleibt leer / Fehler:** Schau, ob es eine `.env.example` gibt:
+  ```bash
+  # Windows
+  copy .env.example .env
+
+  # macOS
+  cp .env.example .env
+  ```
+  Danach `.env` bearbeiten und erneut starten:
+  ```bash
+  npm run dev
+  ```
+- **Port belegt (5173):**
+  ```bash
+  npm run dev -- --port 5174
+  ```
+- **Installation hängt:**
+  ```bash
+  # Windows
+  rmdir /s /q node_modules
+
+  # macOS
+  rm -rf node_modules
+
+  npm install
+  npm run dev
+  ```
+
+---
+
+## 4) Kurzfassung (Checkliste)
+
+1. Node installieren → `node -v` & `npm -v` prüfen  
+2. **Git clone** oder **ZIP entpacken**  
+3. In Projektordner wechseln  
+4. `npm install`  
+5. `npm run dev`  
+6. Link im Browser öffnen ✅
+
+---
+
+## 5) Extra-Wissen (optional)
+
+- Moderne Vue-Projekte:  
+  ```bash
+  npm run dev
+  ```
+  Standard-Port: **5173**
+
+- Ältere Vue-CLI-Projekte:  
+  ```bash
+  npm run serve
+  ```
+  Standard-Port: **8080**
+
+- Alternativen zu `npm`:  
+  ```bash
+  # Mit yarn
+  yarn install
+  yarn dev
+
+  # Mit pnpm
+  pnpm install
+  pnpm dev
+  ```
+
+
+---
+
 ## Einführung
 Die 2025 Version von Stratagen ist eine Uberarbeitung des originalen Spiels entwickelt von Dennis Meadows.
 
