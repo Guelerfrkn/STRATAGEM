@@ -1,6 +1,6 @@
 # STRATAGEM
 
-![banner](https://github.com/user-attachments/assets/76ea556c-2b84-4f5b-93c9-41386483e241)
+<img width="1536" height="1024" alt="ChatGPT Image Oct 1, 2025 at 08_31_08 AM" src="https://github.com/user-attachments/assets/00051a08-f5c3-4457-93b8-8b23f11ccb21" />
 
 ## 0) Voraussetzungen
 
