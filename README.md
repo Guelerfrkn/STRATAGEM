@@ -184,3 +184,14 @@ Das gesamte Programm ist mit vue codiert. Es gibt folgende Ordner in unserer Pro
 - Assets (Logo)
 - Components (alle Hauptseiten + kleine Komponenten, .vue Dateien)
 - Router (für Navigationsrouten, werden für das Programm benötigt)
+
+---
+
+<img width="1710" height="1016" alt="Screenshot 2025-10-01 at 09 15 27" src="https://github.com/user-attachments/assets/1971f121-c80e-49ef-b255-33dcaa8937d3" />
+
+<img width="1710" height="1018" alt="Screenshot 2025-10-01 at 09 14 40" src="https://github.com/user-attachments/assets/71aed86a-03cd-4490-b70e-406530fb40d9" />
+
+<img width="1710" height="1015" alt="Screenshot 2025-10-01 at 09 15 04" src="https://github.com/user-attachments/assets/037d2b81-4a52-4dcf-8aa2-9017f0f7eb15" />
+
+<img width="1710" height="1012" alt="Screenshot 2025-10-01 at 09 15 16" src="https://github.com/user-attachments/assets/8df8b8e2-88c1-47ae-9eb1-6de66282a110" />
+
