@@ -17,7 +17,7 @@
      git --version
      ```
 
-> Wenn Git ==fehlt==, einfach **Methode B (ZIP)**.
+> Wenn Git fehlt, einfach **Methode B (ZIP)**.
 
 ---
 
