@@ -2,7 +2,7 @@
 
 ## 0) Voraussetzungen
 
-1. **Node.js LTS** (empfohlen 20.x) installieren:  
+1. **Node.js LTS** installieren:  
    - [Node.js Download](https://nodejs.org)  
    - Prüfen:
      ```bash
@@ -17,7 +17,7 @@
      git --version
      ```
 
-> Wenn Git fehlt, einfach **Methode B (ZIP)**.
+> Wenn Git ==fehlt==, einfach **Methode B (ZIP)**.
 
 ---
 
@@ -27,7 +27,7 @@
 
 ```powershell
 # 1) In den Ordner wechseln, wo du das Projekt haben willst
-cd C:\Users\==<DeinName>==\Documents
+cd C:\Users\<DeinName>\Documents
 
 # 2) Repo klonen (URL aus GitHub kopieren)
 git clone https://github.com/Guelerfrkn/STRATAGEM
